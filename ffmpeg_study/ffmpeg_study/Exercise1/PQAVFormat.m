@@ -17,7 +17,7 @@
  *
  *  @param url 文件地址
  */
-+(void)openMedaFileAndGetInfoWithURL:(NSURL *)url {
++(int)openMedaFileAndGetInfoWithURL:(NSURL *)url {
     
     // 注册
     av_register_all();
@@ -25,26 +25,39 @@
     // 初始化网络连接
     avformat_network_init();
     
-    AVFormatContext *pFormatContext = NULL;
+    AVFormatContext *pFormatContext = avformat_alloc_context();
     
     
     if(avformat_open_input(&pFormatContext, [url.absoluteString UTF8String], NULL, NULL) != 0){
         
-        const char *errorInfo = [@"ERROR:无法打开媒体文件" UTF8String];
-        av_log(NULL, AV_LOG_ERROR, errorInfo,NULL);
-        
-    }else{
-        
-        av_dump_format(pFormatContext, 0, [url.absoluteString UTF8String], 0);
-        
-        NSLog(@"***************************");
-        
-        avformat_close_input(&pFormatContext);
-        
-        avformat_free_context(pFormatContext);
+        av_log(pFormatContext, AV_LOG_ERROR, "Error:无法打开媒体文件");
+        return 0;
         
     }
     
+    if (avformat_find_stream_info(pFormatContext, NULL) < 0) {
+        av_log(pFormatContext, AV_LOG_ERROR, "Error:找不到流信息");
+        return 0;
+    }
+    
+    // 打印媒体文件信息
+    av_dump_format(pFormatContext, 0, [url.absoluteString UTF8String], 0);
+    
+    av_log(pFormatContext, AV_LOG_INFO, "******************************************\n");
+    
+    // 获取总时长和文件名
+    NSInteger duration = pFormatContext -> duration;
+    
+    av_log(pFormatContext, AV_LOG_INFO, "总时长:%ld秒\n",duration/1000/1000);
+    av_log(pFormatContext, AV_LOG_INFO, "文件名%s\n",pFormatContext -> filename);
+    
+    av_log(pFormatContext, AV_LOG_INFO, "******************************************\n");
+    
+    avformat_close_input(&pFormatContext);
+    
+    avformat_free_context(pFormatContext);
+    
+    return 1;
     
 }
 

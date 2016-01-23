@@ -15,6 +15,6 @@
  *
  *  @param url 文件地址
  */
-+(void)openMedaFileAndGetInfoWithURL:(NSURL *)url;
++(int)openMedaFileAndGetInfoWithURL:(NSURL *)url;
 
 @end
