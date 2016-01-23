@@ -8,6 +8,7 @@
 
 #import "PQAVFormat.h"
 #import <libavformat/avformat.h>
+#import <libavutil/log.h>
 
 @implementation PQAVFormat
 
@@ -29,7 +30,8 @@
     
     if(avformat_open_input(&pFormatContext, [url.absoluteString UTF8String], NULL, NULL) != 0){
         
-        NSLog(@"无法打开媒体文件!");
+        const char *errorInfo = [@"ERROR:无法打开媒体文件" UTF8String];
+        av_log(NULL, AV_LOG_ERROR, errorInfo,NULL);
         
     }else{
         
